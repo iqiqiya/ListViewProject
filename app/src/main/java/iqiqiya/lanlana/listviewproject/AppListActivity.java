@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -34,8 +35,6 @@ public class AppListActivity extends AppCompatActivity {
 
         ListView appListView = findViewById(R.id.app_list_view);
 
-        List<String> appNames = new ArrayList<>();
-
         /**appNames.add("QQ");
         appNames.add("微信");
         appNames.add("微博");
@@ -45,6 +44,23 @@ public class AppListActivity extends AppCompatActivity {
         appNames.add("钉钉");*/
 
         appListView.setAdapter(new AppListAdapter(getAppInfos()));
+
+        // 第二种方式添加应用点击效果
+        final List<ResolveInfo> appInfos = getAppInfos();
+        appListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                String packageName = appInfos.get(position).activityInfo.packageName;
+
+                String className = appInfos.get(position).activityInfo.name;
+
+                ComponentName componentName = new ComponentName(packageName, className);
+
+                final Intent intent = new Intent();
+                intent.setComponent(componentName);
+                startActivity(intent);
+            }
+        });
     }
 
     /**
@@ -100,23 +116,6 @@ public class AppListActivity extends AppCompatActivity {
 
             appNameTextView.setText(mAppInfos.get(position).activityInfo.loadLabel(getPackageManager()));
             appIconImageView.setImageDrawable(mAppInfos.get(position).activityInfo.loadIcon(getPackageManager()));
-
-            // 添加点击打开应用的功能
-            convertView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String packageName = mAppInfos.get(position).activityInfo.packageName;
-
-                    String className = mAppInfos.get(position).activityInfo.name;
-
-                    ComponentName componentName = new ComponentName(packageName, className);
-
-                    final Intent intent = new Intent();
-                    intent.setComponent(componentName);
-                    startActivity(intent);
-                }
-            });
-
 
             return convertView;
         }
