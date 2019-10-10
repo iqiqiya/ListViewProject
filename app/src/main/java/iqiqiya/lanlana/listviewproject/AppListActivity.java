@@ -1,6 +1,8 @@
 package iqiqiya.lanlana.listviewproject;
 
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,23 +35,32 @@ public class AppListActivity extends AppCompatActivity {
 
         List<String> appNames = new ArrayList<>();
 
-        appNames.add("QQ");
+        /**appNames.add("QQ");
         appNames.add("微信");
         appNames.add("微博");
         appNames.add("钉钉");
         appNames.add("钉钉");
         appNames.add("钉钉");
-        appNames.add("钉钉");
+        appNames.add("钉钉");*/
 
-        appListView.setAdapter(new AppListAdapter(appNames));
+        appListView.setAdapter(new AppListAdapter(getAppInfos()));
     }
+
+
+    private List<ResolveInfo> getAppInfos(){
+        Intent intent = new Intent(Intent.ACTION_MAIN,null);
+        intent.addCategory(Intent.CATEGORY_LAUNCHER);
+        return getPackageManager().queryIntentActivities(intent,0);
+    }
+
+
     public class AppListAdapter extends BaseAdapter {
 
-        List<String> mAppNames;
+        List<ResolveInfo> mAppInfos;
 
         // 构造器
-        public AppListAdapter(List<String> appNames){
-            mAppNames = appNames;
+        public AppListAdapter(List<ResolveInfo> appNames){
+            mAppInfos = appNames;
         }
 
 
@@ -57,13 +68,13 @@ public class AppListActivity extends AppCompatActivity {
         @Override
         public int getCount() {
             // 有多少数据
-            return mAppNames.size();
+            return mAppInfos.size();
         }
 
         @Override
         public Object getItem(int position) {
             // 获取当前position位置的这一条
-            return mAppNames.get(position);
+            return mAppInfos.get(position);
         }
 
         @Override
@@ -83,7 +94,8 @@ public class AppListActivity extends AppCompatActivity {
             ImageView appIconImageView = convertView.findViewById(R.id.app_icon_image_view);
             TextView appNameTextView = convertView.findViewById(R.id.app_name_text_view);
 
-            appNameTextView.setText(mAppNames.get(position));
+            appNameTextView.setText(mAppInfos.get(position).activityInfo.loadLabel(getPackageManager()));
+            appIconImageView.setImageDrawable(mAppInfos.get(position).activityInfo.loadIcon(getPackageManager()));
 
             return convertView;
         }
