@@ -1,5 +1,6 @@
 package iqiqiya.lanlana.listviewproject;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
@@ -46,7 +47,10 @@ public class AppListActivity extends AppCompatActivity {
         appListView.setAdapter(new AppListAdapter(getAppInfos()));
     }
 
-
+    /**
+     * 获取已安装应用信息
+     * @return
+     */
     private List<ResolveInfo> getAppInfos(){
         Intent intent = new Intent(Intent.ACTION_MAIN,null);
         intent.addCategory(Intent.CATEGORY_LAUNCHER);
@@ -84,7 +88,7 @@ public class AppListActivity extends AppCompatActivity {
         }
 
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, ViewGroup parent) {
             // 处理View -- data 填充数据的一个过程
 
             LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -96,6 +100,23 @@ public class AppListActivity extends AppCompatActivity {
 
             appNameTextView.setText(mAppInfos.get(position).activityInfo.loadLabel(getPackageManager()));
             appIconImageView.setImageDrawable(mAppInfos.get(position).activityInfo.loadIcon(getPackageManager()));
+
+            // 添加点击打开应用的功能
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String packageName = mAppInfos.get(position).activityInfo.packageName;
+
+                    String className = mAppInfos.get(position).activityInfo.name;
+
+                    ComponentName componentName = new ComponentName(packageName, className);
+
+                    final Intent intent = new Intent();
+                    intent.setComponent(componentName);
+                    startActivity(intent);
+                }
+            });
+
 
             return convertView;
         }
