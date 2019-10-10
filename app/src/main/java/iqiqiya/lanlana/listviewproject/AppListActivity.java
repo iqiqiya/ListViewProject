@@ -35,32 +35,14 @@ public class AppListActivity extends AppCompatActivity {
 
         ListView appListView = findViewById(R.id.app_list_view);
 
-        /**appNames.add("QQ");
-        appNames.add("微信");
-        appNames.add("微博");
-        appNames.add("钉钉");
-        appNames.add("钉钉");
-        appNames.add("钉钉");
-        appNames.add("钉钉");*/
+        // 添加头图
+        LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        View headerView = layoutInflater.inflate(R.layout.header_list_view,null);
+
+        appListView.addHeaderView(headerView);
 
         appListView.setAdapter(new AppListAdapter(getAppInfos()));
-
-        // 第二种方式添加应用点击效果
-        final List<ResolveInfo> appInfos = getAppInfos();
-        appListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                String packageName = appInfos.get(position).activityInfo.packageName;
-
-                String className = appInfos.get(position).activityInfo.name;
-
-                ComponentName componentName = new ComponentName(packageName, className);
-
-                final Intent intent = new Intent();
-                intent.setComponent(componentName);
-                startActivity(intent);
-            }
-        });
     }
 
     /**
@@ -107,17 +89,48 @@ public class AppListActivity extends AppCompatActivity {
         public View getView(final int position, View convertView, ViewGroup parent) {
             // 处理View -- data 填充数据的一个过程
 
-            LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-            convertView = layoutInflater.inflate(R.layout.item_app_list_view,null);
+            ViewHolder viewHolder = new ViewHolder();
 
-            ImageView appIconImageView = convertView.findViewById(R.id.app_icon_image_view);
-            TextView appNameTextView = convertView.findViewById(R.id.app_name_text_view);
+            if (convertView == null){
+                LayoutInflater layoutInflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                convertView = layoutInflater.inflate(R.layout.item_app_list_view,null);
 
-            appNameTextView.setText(mAppInfos.get(position).activityInfo.loadLabel(getPackageManager()));
-            appIconImageView.setImageDrawable(mAppInfos.get(position).activityInfo.loadIcon(getPackageManager()));
+                viewHolder.mAppIconImageView = convertView.findViewById(R.id.app_icon_image_view);
+                viewHolder.mAppNameTextView = convertView.findViewById(R.id.app_name_text_view);
 
+                convertView.setTag(viewHolder);
+            } else {
+                viewHolder = (ViewHolder) convertView.getTag();
+            }
+
+            viewHolder.mAppNameTextView.setText(mAppInfos.get(position).activityInfo.loadLabel(getPackageManager()));
+            viewHolder.mAppIconImageView.setImageDrawable(mAppInfos.get(position).activityInfo.loadIcon(getPackageManager()));
+
+
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    ResolveInfo info = mAppInfos.get(position);
+
+                    //该应用的包名
+                    String pkg = info.activityInfo.packageName;
+                    //应用的主activity类
+                    String cls = info.activityInfo.name;
+
+                    ComponentName componet = new ComponentName(pkg, cls);
+
+                    Intent intent = new Intent();
+                    intent.setComponent(componet);
+                    startActivity(intent);
+                }
+            });
             return convertView;
+        }
+
+        public class ViewHolder{
+            public ImageView mAppIconImageView;
+            public TextView mAppNameTextView;
         }
     }
 }
